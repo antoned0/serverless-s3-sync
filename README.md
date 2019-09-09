@@ -25,20 +25,21 @@ plugins:
 ## Setup
 
 ```yaml
-s3Sync:
-  - bucketName: my-static-site-assets # required
-    bucketPrefix: assets/ # optional
-    localDir: dist/assets # required
-  - bucketName: my-other-site
-    localDir: path/to/other-site
-     acl: public-read # optional
-    followSymlinks: true # optional
-    defaultContentType: text/html # optional
-    params: # optional
-      - index.html:
-          CacheControl: 'no-cache'
-      - "*.js":
-          CacheControl: 'public, max-age=31536000'
+custom:
+  s3Sync:
+    - bucketName: my-static-site-assets # required
+      bucketPrefix: assets/ # optional
+      localDir: dist/assets # required
+    - bucketName: my-other-site
+      localDir: path/to/other-site
+      acl: public-read # optional
+      followSymlinks: true # optional
+      defaultContentType: text/html # optional
+      params: # optional
+        - index.html:
+            CacheControl: 'no-cache'
+        - "*.js":
+            CacheControl: 'public, max-age=31536000'
 
 resources:
   Resources:
