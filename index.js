@@ -13,7 +13,6 @@ class ServerlessS3Sync {
     this.serverless = serverless;
     this.options = options || {};
     this.servicePath = this.serverless.service.serverless.config.servicePath;
-
     this.commands = {
       s3sync: {
         usage: 'Sync directories and S3 prefixes',
@@ -24,7 +23,8 @@ class ServerlessS3Sync {
     };
 
     this.hooks = {
-      'after:deploy:deploy': () => BbPromise.bind(this).then(this.sync),
+      'before:deploy:deploy': () => BbPromise.bind(this).then(this.beforeDeploy),
+      'after:deploy:deploy': () => BbPromise.bind(this).then(this.afterDeploy),
       'before:remove:remove': () => BbPromise.bind(this).then(this.clear),
       's3sync:sync': () => BbPromise.bind(this).then(this.sync)
     };
@@ -41,7 +41,15 @@ class ServerlessS3Sync {
     return s3.createClient({ s3Client });
   }
 
-  sync() {
+  beforeDeploy() {
+    return this.sync(true);
+  }
+
+  afterDeploy() {
+    return this.sync(false)
+  }
+
+  sync(before) {
     const s3Sync = this.serverless.service.custom.s3Sync;
     const cli = this.serverless.cli;
     if (!Array.isArray(s3Sync)) {
@@ -74,7 +82,14 @@ class ServerlessS3Sync {
       if (s.hasOwnProperty('deleteRemoved')) {
           deleteRemoved = s.deleteRemoved;
       }
-
+      let beforeDeploy = false;
+      if (s.hasOwnProperty('beforeDeploy')) {
+        beforeDeploy = s.beforeDeploy;
+      }
+      if (beforeDeploy != before) {
+        return Promise.resolve();
+      }
+      console.log('S3 Sync: ' + s.localDir + ' --> s3://' + s.bucketName + '/' + bucketPrefix)
       return new Promise((resolve) => {
         const localDir = [servicePath, s.localDir].join('/');
 
