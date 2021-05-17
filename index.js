@@ -25,7 +25,7 @@ class ServerlessS3Sync {
     this.hooks = {
       'before:deploy:deploy': () => BbPromise.bind(this).then(this.beforeDeploy),
       'after:deploy:deploy': () => BbPromise.bind(this).then(this.afterDeploy),
-      'before:remove:remove': () => BbPromise.bind(this).then(this.clear),
+      'after:remove:remove': () => BbPromise.bind(this).then(this.clear),
       's3sync:sync': () => BbPromise.bind(this).then(this.sync)
     };
   }
